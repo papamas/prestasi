@@ -22,8 +22,9 @@ class Cetak extends CI_Controller {
 	{
 		$id_instansi	= $this->input->post('instansi');
 		$tahun			= $this->input->post('tahun');
+		$id_user		= $this->session->userdata('id_dd_user');
 		
-		$qprestasi		= $this->_getPrestasi($tahun);
+		$qprestasi		= $this->_getPrestasi($id_user,$tahun);
 		
 		if($qprestasi->num_rows() == 0)
 		{
@@ -697,7 +698,7 @@ EOD;
 		
 		$this->pdftc->writeHTMLCell(0, 0, 150, 5, $tbl,0,0,false,true,'T',true);
 		
-		$this->pdftc->Output('SKP.pdf', 'I');
+		$this->pdftc->Output('e-Prestasi Kerja_'.$prestasi->nip.'.pdf', 'D');
 		
 	}
 	
@@ -712,7 +713,7 @@ EOD;
 		
 	}
 	
-	function _getPrestasi($tahun){
+	function _getPrestasi($id_user, $tahun){
 	    
 		$sql="SELECT c.nip,c.id_dd_user,c.nama,m.Golongan,m.Pangkat, n.jabatan,a.tahun,
 c.atasan_langsung,c.atasan_2, c.atasan_3,
@@ -748,7 +749,7 @@ LEFT JOIN ekinerja.tblgolongan i ON g.gol_ruang  = i.KodeGol
 LEFT JOIN ekinerja.tbljabatan j on c.jabatan = j.kodejab
 LEFT JOIN ekinerja.tblstruktural k ON d.unit_kerja = k.kodeunit
 LEFT JOIN ekinerja.tblstruktural l ON g.unit_kerja = l.kodeunit
-WHERE a.tahun='$tahun' AND a.nilai_skp != 0
+WHERE a.tahun='$tahun' AND a.id_dd_user='$id_user' AND a.nilai_skp != 0
 GROUP BY a.id_dd_user";
 		
 		$query		= $this->db->query($sql);
@@ -818,7 +819,7 @@ WHERE a.id_dd_user='$id' AND date(a.tanggal) between '$start' AND '$end' ";
 		return $query;
 	}
 	
-	function _getSKPTahunan()
+	function _getSKPTahunan($id_user)
 	{
 		/* fungsi untuk melihat beratap bayak peride SKP yang di buat dalam satu tahun */
 		$sql="SELECT d.* ,ROUND((SUM(d.nilai))/count(d.nilai),2) nilai_capaian_skp,
@@ -867,7 +868,7 @@ LEFT JOIN ekinerja.dd_kuantitas b on a.satuan_kuantitas = b.id_dd_kuantitas
 LEFT JOIN ekinerja.opmt_realisasi_harian_skp c ON a.id_opmt_target_skp = c.id_opmt_target_skp AND c.proses=0
 LEFT JOIN ekinerja.opmt_realisasi_skp d ON a.id_opmt_target_skp = d.id_opmt_target_skp
 INNER JOIN ekinerja.opmt_tahunan_skp e ON e.id_opmt_tahunan_skp = a.id_opmt_tahunan_skp
-WHERE a.id_dd_user='2499'
+WHERE a.id_dd_user='$id_user'
 GROUP BY a.id_opmt_target_skp
  ) a) b ) c ) d 
  GROUP BY d.id_opmt_tahunan_skp  
@@ -1045,7 +1046,7 @@ GROUP BY h.id_dd_user
 ) i
 LEFT JOIN ekinerja.opmt_perilaku j ON (j.id_dd_user = i.id_dd_user AND j.tahun=YEAR(i.akhir_periode_skp))
 GROUP BY i.id_dd_user ) k ) l
-WHERE l.id_dd_user='2499' ) m";	    
+WHERE l.id_dd_user='$id_user' ) m";	    
 		$query	=$this->db->query($sql);
 		return $query;
 	}	
