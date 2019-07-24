@@ -204,7 +204,7 @@ class Cetak extends CI_Controller {
 			$this->pdftc->Cell(30, 0, 'NIP.'.$prestasi->nip_atasan_langsung, 0,0, 'C', 0, '', 0, false, 'B', 'B');
 						
 			$this->pdftc->SetXY(235, 155);
-			$this->pdftc->Cell(30, 0, 'Manado, '.$value->format_awal_periode_skp, 0,0, 'C', 0, '', 0, false, 'B', 'B');
+			$this->pdftc->Cell(30, 0, $prestasi->lokasi_spesimen.', '.$value->format_awal_periode_skp, 0,0, 'C', 0, '', 0, false, 'B', 'B');
 			
 			$this->pdftc->SetXY(235, 160);
 			$this->pdftc->Cell(30, 0, 'Pegawai Negeri Sipil Yang Dinilai,', 0,0, 'C', 0, '', 0, false, 'B', 'B');
@@ -378,7 +378,7 @@ class Cetak extends CI_Controller {
 
 			$this->pdftc->SetFont('freesans', '', 9);
 			$this->pdftc->SetXY(235, 165);
-			$this->pdftc->Cell(30, 0, 'Manado, '.$val->format_akhir_periode_skp, 0,0, 'C', 0, '', 0, false, 'B', 'B');
+			$this->pdftc->Cell(30, 0, $prestasi->lokasi_spesimen.', '.$val->format_akhir_periode_skp, 0,0, 'C', 0, '', 0, false, 'B', 'B');
 			
 			$this->pdftc->SetXY(235, 169);
 			$this->pdftc->Cell(30, 0, 'Pejabat Penilai,', 0,0, 'C', 0, '', 0, false, 'B', 'B');
@@ -715,7 +715,8 @@ EOD;
 	
 	function _getPrestasi($id_user, $tahun){
 	    
-		$sql="SELECT c.nip,c.id_dd_user,c.nama,m.Golongan,m.Pangkat, n.jabatan,a.tahun,
+		$sql="SELECT c.nip,c.id_dd_user,c.nama,o.lokasi_spesimen,
+		m.Golongan,m.Pangkat, n.jabatan,a.tahun,
 c.atasan_langsung,c.atasan_2, c.atasan_3,
 d.nip nip_atasan_langsung,
 d.nama nama_atasan_langsung,
@@ -749,6 +750,7 @@ LEFT JOIN ekinerja.tblgolongan i ON g.gol_ruang  = i.KodeGol
 LEFT JOIN ekinerja.tbljabatan j on c.jabatan = j.kodejab
 LEFT JOIN ekinerja.tblstruktural k ON d.unit_kerja = k.kodeunit
 LEFT JOIN ekinerja.tblstruktural l ON g.unit_kerja = l.kodeunit
+LEFT JOIN ekinerja.dd_spesimen o ON c.lok_ker = o.id_dd_spesimen
 WHERE a.tahun='$tahun' AND a.id_dd_user='$id_user' AND a.nilai_skp != 0
 GROUP BY a.id_dd_user";
 		
